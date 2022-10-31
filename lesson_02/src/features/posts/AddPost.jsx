@@ -2,32 +2,43 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllUsers } from "../users/usersSlice";
-import { addPost } from "./postsSlice";
+import { addNewPost, addPost } from "./postsSlice";
 
 const AddPost = () => {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [body, setBody] = useState("");
   const [userId, setUserId] = useState("");
   const dispatch = useDispatch();
   const users = useSelector(selectAllUsers);
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
+  const [isPostRequestActive, setIsPostRequestActive] = useState(false);
 
-  const handleSubmission = (e) => {
+  const canSave = [title, body, userId, !isPostRequestActive].every(Boolean);
+
+  const handleSubmission = async (e) => {
     e.preventDefault();
 
     if (title.length === 0) {
       alert("The post needs a title");
       return;
     }
-    if (content.length === 0) {
-      alert("The post needs content");
+    if (body.length === 0) {
+      alert("The post needs body");
       return;
     }
+    
+    try {
+      setIsPostRequestActive(true);
+      await dispatch(addNewPost({ title, body, userId }));
+      
 
-    dispatch(addPost(title, content, Number(userId)));
+      setTitle("");
+      setBody("");
+    } catch (error) {
+      alert("Oops, something went wrong!");
+    } finally {
+      setIsPostRequestActive(false);
+    }
 
-    setTitle("");
-    setContent("");
   };
 
   return (
@@ -47,8 +58,8 @@ const AddPost = () => {
           <label htmlFor="postContent">Content</label>
           <textarea
             id="postContent"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
           ></textarea>
         </div>
 
