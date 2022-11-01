@@ -28,8 +28,7 @@ const AddPost = () => {
     
     try {
       setIsPostRequestActive(true);
-      await dispatch(addNewPost({ title, body, userId }));
-      
+      await dispatch(addNewPost({ title, body, userId }));      
 
       setTitle("");
       setBody("");
